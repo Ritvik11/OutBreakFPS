@@ -85,7 +85,11 @@ Empty rows are fine — they show this section will keep growing. An honest empt
 
 ## VR-specific notes
 
-- **Forward shading** evaluated and rejected for this slice — Lumen + GPU instancing keeps us in budget and reads better visually. Documented the experiment so reviewers don't think it was skipped.
-- **Fixed Foveated Rendering** (FFR) enabled on Quest builds, off on PC tethered VR (Index/Reverb have higher pixel density tolerance).
+- **Forward shading** to be evaluated against deferred + Lumen for this slice. Documenting the experiment outcome (kept or rejected) is part of the perf log so reviewers don't think the choice was skipped.
+- **Fixed Foveated Rendering** (FFR) considered for tethered VR; eye-tracked dynamic foveation is the more interesting target because `OpenXREyeTracker` is enabled in the `.uproject`. Eye-tracked foveation lets the visible region stay full-res while the periphery drops — a meaningful win on swarms.
 - **Instanced Stereo Rendering** on by default — non-negotiable for VR perf.
-- **Mobile preview** not used for Quest standalone builds; targeting Link/PCVR only keeps the scope honest. Standalone Quest 3 native would need a separate optimization pass and is called out in the roadmap.
+- **Quest standalone** not in scope; targeting Link/SteamVR PCVR only keeps the scope honest. Standalone Quest 3 native would need a separate optimization pass and is on the roadmap.
+
+## Engine version
+
+UE 5.7. Perf characteristics differ meaningfully from 5.4 baselines floating around the internet — particularly around Lumen on VR. All captures in this doc are 5.7-relative.

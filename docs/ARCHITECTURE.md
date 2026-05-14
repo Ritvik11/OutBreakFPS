@@ -2,6 +2,8 @@
 
 This document explains *why* the slice is structured the way it is. The README is the elevator pitch; this is the whiteboard for an engineering reviewer.
 
+> **Current state:** the repo is bootstrapped on the **UE 5.7 VR Template** (Blueprint), with `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled. The module layout, GAS-based ability system, encounter director, and damage pipeline described below are the **planned C++ architecture being layered onto that foundation**. Each section explains the design intent so reviewers can evaluate the engineering decisions even before the corresponding code lands. Implementation status is tracked via git tags (`v0.0.x-*`) and GitHub issues.
+
 ---
 
 ## Goals & constraints
@@ -168,5 +170,12 @@ Calling these out matters — reviewers should see scope decisions were delibera
 - Save/load (slice resets each play; not a meaningful demo of anything).
 - Localization (would dilute focus).
 - Multi-player netcode demo (systems are net-ready, exercising them needs infrastructure that doesn't read in a portfolio).
-- Hand-tracking (OpenXR supports it; controllers tell a clearer engineering story for AAA reviewers).
+- Quest standalone build (PC-tethered VR via Link/SteamVR is the target; Quest standalone would need a separate optimization pass and is on the roadmap, not in the slice).
 - Live-ops / monetization hooks (irrelevant to the role I'm targeting).
+
+## What's enabled but not exercised yet
+
+The VR Template foundation ships these plugins active; calling them out so reviewers know they're available and intentional:
+
+- **`OpenXRHandTracking`** — hand tracking input is available alongside controllers. Whether the slice uses it for any specific interaction is a design decision tracked in roadmap issues.
+- **`OpenXREyeTracker`** — eye tracking enabled so dynamic foveated rendering can be evaluated as a perf strategy (see [PERFORMANCE.md](PERFORMANCE.md)).
