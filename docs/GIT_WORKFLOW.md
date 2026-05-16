@@ -162,7 +162,7 @@ Drop into `~/.gitconfig`:
 For a portfolio slice, even "build succeeded locally and produced this artifact" recorded on a GitHub Release is enough. Don't over-invest. If you do want a green checkmark on `main`:
 
 1. Self-hosted Windows runner (GitHub-hosted runners can't build UE — too small).
-2. Workflow: on push to a feature branch, headless compile `Development Editor` via `Engine\Build\BatchFiles\RunUAT.bat BuildEditor -project=OutBreakFPS.uproject -platform=Win64`.
+2. Workflow: on push to a feature branch, headless compile `Development Editor` via `Engine\Build\BatchFiles\RunUAT.bat BuildEditor -project=OutBreak.uproject -platform=Win64`.
 3. On tag push: cook & package for both PC and VR configurations, upload `.zip` artifacts to the Release.
 
 The CI itself is a portfolio artifact — a sensible, minimal pipeline reads as more senior than an over-engineered one.

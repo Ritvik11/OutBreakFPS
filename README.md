@@ -1,6 +1,8 @@
-# OutBreakFPS
+# OutBreak
 
-> A single-player outbreak survival FPS vertical slice built in Unreal Engine 5, playable on flatscreen PC **and** in VR from one shared codebase. Built to demonstrate gameplay programming, AI, and dual-platform engineering for AAA roles.
+> A co-op outbreak survival FPS vertical slice built in Unreal Engine 5.3, playable on flatscreen PC **and** standalone on Meta Quest 3 from one shared codebase. Built to demonstrate gameplay programming, AI, and dual-platform engineering for AAA roles.
+
+> Repository: `OutBreakFPS` · Project file: `OutBreak.uproject` (the repo name predates the project rename — both refer to the same slice).
 
 <!-- Replace with a 5–8 second looping GIF of the strongest moment. -->
 ![Hero GIF](docs/media/hero.gif)
@@ -13,17 +15,17 @@
 
 | | |
 |---|---|
-| **Engine** | Unreal Engine 5.7 |
+| **Engine** | Unreal Engine 5.3 |
 | **Languages** | Blueprint (current foundation), C++ (gameplay-critical systems — in progress) |
-| **Platforms** | Windows (flatscreen) + OpenXR (Quest 3, Index, Reverb G2) |
+| **Platforms** | Windows (flatscreen) + Meta Quest 3 (standalone Android via OpenXR) |
 | **XR features** | Controller + hand tracking + eye tracking (foveation-ready), all via OpenXR |
 | **Scope** | Solo project, in progress |
 | **Target — PC** | 60 FPS at 1440p, RTX 3070-class |
-| **Target — VR** | 90 FPS at native HMD resolution, RTX 3070-class |
+| **Target — Quest 3 standalone** | 90 FPS native, 3-player co-op |
 | **Source control** | Git + Git LFS, Conventional Commits, structured branching |
 | **What I owned** | 100% — design, programming, integration, lighting, audio cues, build pipeline |
 
-> **Status:** the repo is set up on the UE 5.7 VR Template (Blueprint) with `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled. C++ gameplay systems described below are being layered onto this foundation. Tagged milestones (`v0.0.1-scaffold` → `v0.0.2-project` → …) track the build-up so the project's evolution is visible in git history.
+> **Status:** the repo is bootstrapped on the UE 5.3 VR Template (Blueprint) with `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled — each explicitly scoped to support `Win64`, `Linux`, and `Android` so Quest 3 standalone is a first-class target rather than an afterthought. C++ gameplay systems described below are being layered onto this foundation. Tagged milestones (`v0.0.1-scaffold` → `v0.0.2-project` → `v0.1.0-ue53-migration` → …) track the build-up so the project's evolution is visible in git history.
 
 ---
 
@@ -31,7 +33,7 @@
 
 The plan, paired with what's already in the repo. Each item links to the architecture rationale; code references will turn into clickable paths as systems land.
 
-- **Dual-platform gameplay architecture.** One shared gameplay/AI/combat codebase with platform-specific input (Enhanced Input — KB+M, gamepad, OpenXR controllers, hand tracking) and locomotion (flatscreen first-person vs. VR snap-turn + smooth-locomotion). Foundation is the UE 5.7 VR Template; C++ shim layer in progress. Rationale: [docs/ARCHITECTURE.md § Dual-platform strategy](docs/ARCHITECTURE.md#dual-platform-strategy-pc--vr).
+- **Dual-platform gameplay architecture.** One shared gameplay/AI/combat codebase with platform-specific input (Enhanced Input — KB+M, gamepad, OpenXR controllers, hand tracking) and locomotion (flatscreen first-person vs. VR snap-turn + smooth-locomotion). Foundation is the UE 5.3 VR Template; C++ shim layer in progress. Rationale: [docs/ARCHITECTURE.md § Dual-platform strategy](docs/ARCHITECTURE.md#dual-platform-strategy-pc--vr).
 - **Gameplay C++ + GAS.** Player and infected AI to be built on `UAbilitySystemComponent` with data-driven attributes, replicated and prediction-aware even in single-player. Rationale: [docs/ARCHITECTURE.md § Ability & Attribute system](docs/ARCHITECTURE.md#ability--attribute-system).
 - **AI behavior.** Behavior Tree + utility scoring hybrid. A `UEncounterDirector` world subsystem drives infected pacing (lulls, swells, ambushes) based on player cover state and tempo of recent combat. Rationale: [docs/ARCHITECTURE.md § Encounter Director](docs/ARCHITECTURE.md#encounter-director).
 - **Combat pipeline.** Single `UCombatStatics::ApplyDamage` chokepoint feeds physical-material-aware Niagara hit reactions, screen-shake on PC, and HMD-safe haptic feedback on VR (no camera-jolting effects in VR — comfort first). Rationale: [docs/ARCHITECTURE.md § Damage pipeline](docs/ARCHITECTURE.md#damage-pipeline).
@@ -60,7 +62,7 @@ No installer. Unzip, run `OutBreakFPS.exe`.
 
 ### Build from source
 
-**Prerequisites:** Unreal Engine 5.7.x, Visual Studio 2022 with the *Game development with C++* workload, Git, Git LFS.
+**Prerequisites:** Unreal Engine 5.3.x, Visual Studio 2022 with the *Game development with C++* workload, Git, Git LFS.
 
 ```bash
 git lfs install
@@ -69,7 +71,7 @@ cd OutBreakFPS
 git lfs pull
 ```
 
-Double-click `OutBreakFPS.uproject` to open in the editor. Once C++ systems land, the project will need Visual Studio: right-click the `.uproject` → **Generate Visual Studio project files** → open the generated `OutBreakFPS.sln` → **Development Editor** → F5. First-time DDC build ≈ 10–15 minutes.
+Double-click `OutBreak.uproject` to open in the editor. Once C++ systems land, the project will need Visual Studio: right-click the `.uproject` → **Generate Visual Studio project files** → open the generated `OutBreak.sln` → **Development Editor** → F5. First-time DDC build ≈ 10–15 minutes.
 
 OpenXR, hand tracking, and eye tracking plugins are already enabled in the project. For VR Preview: **Play dropdown → VR Preview** with your headset connected.
 

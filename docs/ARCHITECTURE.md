@@ -2,7 +2,9 @@
 
 This document explains *why* the slice is structured the way it is. The README is the elevator pitch; this is the whiteboard for an engineering reviewer.
 
-> **Current state:** the repo is bootstrapped on the **UE 5.7 VR Template** (Blueprint), with `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled. The module layout, GAS-based ability system, encounter director, and damage pipeline described below are the **planned C++ architecture being layered onto that foundation**. Each section explains the design intent so reviewers can evaluate the engineering decisions even before the corresponding code lands. Implementation status is tracked via git tags (`v0.0.x-*`) and GitHub issues.
+> **Current state:** the repo is bootstrapped on the **UE 5.3 VR Template** (Blueprint), with `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled — each plugin explicitly scoped to support `Win64`, `Linux`, and `Android`, making Quest 3 standalone a first-class target rather than a retrofit. The module layout, GAS-based ability system, encounter director, and damage pipeline described below are the **planned C++ architecture being layered onto that foundation**. Each section explains the design intent so reviewers can evaluate the engineering decisions even before the corresponding code lands. Implementation status is tracked via git tags (`v0.0.x-*`, `v0.1.x-*`) and GitHub issues.
+>
+> **Engine version rationale:** the project targets UE 5.3 specifically because the marketplace assets in the asset pipeline (factory environment packs, common alien enemy) cap their supported version at 5.3. Standardizing on 5.3 avoids per-asset version workarounds and keeps the asset import pipeline consistent. 5.3 still has the Quest-relevant features needed: OpenXR, mobile multi-view, instanced stereo, forward shading, and the eye-tracking plugin for foveated rendering.
 
 ---
 

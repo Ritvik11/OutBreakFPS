@@ -92,4 +92,4 @@ Empty rows are fine — they show this section will keep growing. An honest empt
 
 ## Engine version
 
-UE 5.7. Perf characteristics differ meaningfully from 5.4 baselines floating around the internet — particularly around Lumen on VR. All captures in this doc are 5.7-relative.
+UE 5.3. Engine version was chosen for marketplace asset compatibility — most target packs cap at 5.3. Perf characteristics in this doc are 5.3-relative. Notes when reading 5.4+ or 5.7+ Quest perf guides on the internet: many of those rely on improved mobile renderer optimizations that aren't yet in 5.3 (e.g., some Lumen-mobile compatibility paths, the newer mobile multi-view defaults). Capture and document everything on 5.3 directly rather than extrapolating from newer-version benchmarks.
