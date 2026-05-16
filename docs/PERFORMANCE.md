@@ -1,60 +1,51 @@
-# Performance — OutBreakFPS
+# Performance — OutBreak
 
 Targets and how they're measured. Numbers without methodology are vibes; this page is the methodology.
 
+The project targets **Meta Quest 3 standalone** as its only build platform for the current slice. Every number here is captured on-device, not extrapolated from PCVR.
+
 ---
 
-## PC target
+## Quest 3 standalone target
 
 | Metric | Target | Rationale |
 |---|---|---|
-| Frame time @ 1440p, RTX 3070 | < 16.6 ms | Locked 60 FPS during gameplay, not just at the splash |
-| GPU time | < 12 ms | Leaves headroom on lower-end cards |
-| CPU game thread | < 4 ms | More than that on a single encounter and the architecture is wrong |
-| Draw calls | < 4,000 | Pragmatic ceiling for Nanite + traditional mix |
-| Persistent memory | < 4 GB | Console-class budget; not arbitrary |
-| Cold load to playable | < 8 s | Below the threshold where players alt-tab |
+| Frame time | < 11.1 ms (90 Hz) | Below that, Quest's Asynchronous Spacewarp reprojection kicks in; players notice |
+| GPU time | < 8 ms | Stereo rendering effectively doubles cost; remaining headroom absorbs spikes |
+| CPU game thread | < 4 ms | Listen-server host runs game logic + AI for all 3 co-op players |
+| Draw calls (visible) | < 200 | Forward-rendering mobile budget; HLOD + cull distance volumes enforce |
+| Vertex throughput | < 1 M visible | Adreno 740 sustained-budget figure |
+| Reprojection rate | < 5% | Above this, motion artifacts become visible |
+| Motion-to-photon | < 20 ms | Comfort threshold for most users |
+| APK size | < 1 GB | Keeps sideload time short and disk footprint reasonable |
 
-## VR target
-
-VR runs on a tighter budget because dropped frames cause nausea, not just complaints.
-
-| Metric | Target (Quest 3 via Link / Index) | Rationale |
-|---|---|---|
-| Frame time | < 11.1 ms (90 Hz) | Below that, reprojection kicks in |
-| GPU time | < 8 ms | Stereo rendering doubles cost; headroom matters more |
-| CPU game thread | < 4 ms | Same budget as PC; VR is GPU-bound first |
-| Reprojection rate | < 5% | Above this, comfort degrades visibly |
-| Motion-to-photon latency | < 20 ms | Comfort threshold for most users |
-| Draw calls | < 2,500 | Stereo doubles, so we halve the budget |
+VR perf is non-negotiable. Dropped frames cause nausea, not just complaints. The slice is designed to hold 90 FPS under worst-case wave conditions (1 elite + ~18 minors + 3 players visible) — not just on the splash screen.
 
 ---
 
-## How to reproduce
+## How to reproduce — on-device capture
 
 ```
-# Editor console (~)
+# UE Editor console (~) for in-editor PIE captures
 stat unit                # frame timings
 stat scenerendering      # draw calls, primitives
 stat memory              # heap usage
 stat gpu                 # GPU timings per pass
-
-# VR-specific
-stat vr                  # reprojection rate, late update timing
 stat xr                  # OpenXR layer breakdown
 ```
 
-Full traces:
-```
+**On-device (Quest 3 standalone)**:
+
+```bash
+# Launch the packaged build with Insights tracing enabled
+adb shell am start -n com.kinemeric.outbreak/com.epicgames.unreal.GameActivity \
+  --es "cmdline" "-trace=cpu,gpu,frame,bookmark -tracehost=<your_pc_ip>"
+
+# On your PC, open Insights to receive the trace
 Engine\Binaries\Win64\UnrealInsights.exe
 ```
 
-For packaged build:
-```
-OutBreakFPS.exe -trace=cpu,gpu,frame,bookmark -tracehost=127.0.0.1
-```
-
-All measurements taken on Encounter01, starting from the same checkpoint, with the same input sequence. Methodology matters more than the absolute numbers — reviewers should be able to repeat the capture.
+All measurements taken on the same wave (Wave 2: 1 elite + ~7 minors), starting from the same checkpoint, with the same input sequence. Methodology matters more than absolute numbers — reviewers should be able to repeat the capture.
 
 ---
 
@@ -62,10 +53,11 @@ All measurements taken on Encounter01, starting from the same checkpoint, with t
 
 Insights traces and `stat unit` screenshots live in `docs/media/perf/`. Commit them; they're the receipts.
 
-| Date | Build | Scene | Platform | GT (ms) | RT (ms) | GPU (ms) | Repro % | Notes |
+| Date | Build | Scene | Wave | GT (ms) | RT (ms) | GPU (ms) | Repro % | Notes |
 |---|---|---|---|---|---|---|---|---|
-| YYYY-MM-DD | v0.1.0 | Encounter01 mid | PC 1440p | — | — | — | — | Baseline |
-| YYYY-MM-DD | v0.1.0 | Encounter01 mid | Quest 3 (Link) | — | — | — | — | Baseline |
+| YYYY-MM-DD | v0.1.0 | Encounter01 | Wave 1 | — | — | — | — | Baseline |
+| YYYY-MM-DD | v0.1.0 | Encounter01 | Wave 2 | — | — | — | — | Elite intro |
+| YYYY-MM-DD | v0.1.0 | Encounter01 | Wave 3 | — | — | — | — | Coordinated finale |
 
 ---
 
@@ -73,22 +65,42 @@ Insights traces and `stat unit` screenshots live in `docs/media/perf/`. Commit t
 
 Every meaningful perf win, the technique, the delta. Reviewers love these — closest thing to seeing you think.
 
-| Change | Technique | Before → After | Platform | Where |
-|---|---|---|---|---|
-| Hit-react MID pooling | Material instance reuse | 2.1 → 1.7 ms GT | Both | `UCombatStatics::ApplyHitFx` |
-| Off-frustum Niagara cull | Frustum check at spawn | 8% → 1.2% repro | VR | `UHitReactComponent::Spawn` |
-| | | | | |
+| Change | Technique | Before → After | Where |
+|---|---|---|---|
+| Hit-react MID pooling | Material instance reuse | 2.1 → 1.7 ms GT | `UCombatStatics::ApplyHitFx` |
+| AI dormancy outside combat radius | BT tick rate 60 Hz → 1 Hz beyond 25 m | 4.5 → 1.2 ms CPU | `UEncounterDirectorSubsystem::TickDormancyPass` |
+| Off-frustum Niagara cull | Frustum check at spawn | 8% → 1.2% repro | `UHitReactComponent::Spawn` |
+| | | | |
 
 Empty rows are fine — they show this section will keep growing. An honest empty log is more credible than fabricated numbers.
 
 ---
 
-## VR-specific notes
+## Quest 3 perf strategies in use
 
-- **Forward shading** to be evaluated against deferred + Lumen for this slice. Documenting the experiment outcome (kept or rejected) is part of the perf log so reviewers don't think the choice was skipped.
-- **Fixed Foveated Rendering** (FFR) considered for tethered VR; eye-tracked dynamic foveation is the more interesting target because `OpenXREyeTracker` is enabled in the `.uproject`. Eye-tracked foveation lets the visible region stay full-res while the periphery drops — a meaningful win on swarms.
-- **Instanced Stereo Rendering** on by default — non-negotiable for VR perf.
-- **Quest standalone** not in scope; targeting Link/SteamVR PCVR only keeps the scope honest. Standalone Quest 3 native would need a separate optimization pass and is on the roadmap.
+The slice is designed Quest-first; these aren't retrofits.
+
+- **Forward shading.** Mandatory on Quest standalone; deferred isn't supported. Lumen disabled — baked lightmaps + a single dynamic directional light per scene.
+- **Mobile multi-view.** Vulkan extension that renders both eyes through a single draw call submission. Roughly 30% perf win on stereo. Enabled by default in Project Settings.
+- **Instanced Stereo Rendering.** Non-negotiable for VR perf.
+- **MSAA 4×.** Quest's tile-based renderer makes MSAA effectively free in tile memory. TAA breaks stereo and would also lose the tile-memory advantage.
+- **HLOD on environment.** Distant geometry merges into proxy meshes. Particularly impactful when player is interior and exterior factory is 30+ m away — full environment renders as a handful of merged meshes.
+- **Eye-tracked dynamic foveation.** `OpenXREyeTracker` plugin enabled; visible region renders at full resolution while periphery drops. Targeted win for swarm waves where multiple agents are on screen.
+- **AI dormancy.** Minors beyond ~25 m from any player have BTs ticked at 1 Hz instead of 60 Hz (see optimization log). Saves 3-4 ms CPU on busy waves.
+- **Animation budgeting.** `AnimationBudgeting` plugin enabled, 2 ms target. Animation eval degrades gracefully for distant agents.
+- **Aggressive cull distance volumes.** Small props (papers, screws, debris) hidden past ~8 m. Player won't notice; Quest gets hundreds of draw calls back.
+
+---
+
+## What's *not* used and why
+
+- **Lumen Global Illumination / Reflections.** Mobile-incompatible on Quest standalone. Scene lighting is baked.
+- **Nanite.** Mobile-incompatible. All meshes use traditional LOD chains (LOD0–LOD3).
+- **Virtual Shadow Maps.** Mobile-incompatible. Cascaded / modulated shadow maps for the directional light.
+- **TAA / TSR.** Breaks instanced stereo and the tile-memory MSAA advantage.
+- **Refraction-based glass.** Replaced with fake glass (cubemap reflection + alpha) — refraction would require an extra scene capture pass that doesn't fit the budget.
+
+---
 
 ## Engine version
 

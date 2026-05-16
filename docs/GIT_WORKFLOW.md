@@ -1,4 +1,4 @@
-# Git workflow — OutBreakFPS
+# Git workflow — OutBreak
 
 Solo project, but written as if a teammate might join. Reviewers read commit history and branching strategy. Making both legible signals seniority just as much as code does.
 
@@ -22,7 +22,7 @@ git config user.email "ritvik@kinemeric.com"
 
 ## Branching
 
-`main` is always playable on both PC and VR. If `main` is red, that's a P0.
+`main` is always playable on Quest 3 standalone. If `main` is red, that's a P0.
 
 | Branch | Purpose | Example |
 |---|---|---|
@@ -101,9 +101,8 @@ git tag -a v0.1.0 -m "Vertical slice — first playable"
 git push origin v0.1.0
 ```
 
-Each tag → a GitHub Release with two artifacts:
-- `OutBreakFPS-Win64-PC-v0.1.0.zip`
-- `OutBreakFPS-Win64-VR-v0.1.0.zip`
+Each tag → a GitHub Release with one artifact:
+- `OutBreak-Quest3-v0.1.0.apk` — sideloadable Quest 3 standalone build
 
 Keeps the README's download links pointing somewhere alive.
 
@@ -126,11 +125,11 @@ Keeps the README's download links pointing somewhere alive.
 Before every push to `main`:
 
 1. `Development Editor` compiles clean — no new warnings.
-2. Editor opens without errors (`Saved/Logs/OutBreakFPS.log`).
-3. **PC PIE** — Encounter01 plays to completion.
-4. **VR PIE** — Encounter01 plays to completion at 90 FPS, no reprojection spikes during swarm.
-5. `Engine → Test Automation` runs `OutBreakFPSTests` to green.
-6. `stat unit` still hits targets on both platforms.
+2. Editor opens without errors (`Saved/Logs/OutBreak.log`).
+3. **VR Preview** — Encounter01 plays to completion at 90 FPS via Quest Link, no reprojection spikes during waves.
+4. **On-device APK** (at minimum once per tagged release) — Encounter01 plays to completion at 90 FPS on Quest 3 standalone, captured via `adb logcat` and `stat unit`.
+5. `Engine → Test Automation` runs `OutBreakTests` to green.
+6. `stat unit` still hits targets (frame time < 11.1 ms, GPU < 8 ms, reprojection < 5%).
 7. `git status` — no stray `Saved/`, `Intermediate/`, `.vs/`, `.idea/`. `.gitignore` should catch these; double-check.
 8. Commit message follows the convention above.
 
@@ -163,6 +162,6 @@ For a portfolio slice, even "build succeeded locally and produced this artifact"
 
 1. Self-hosted Windows runner (GitHub-hosted runners can't build UE — too small).
 2. Workflow: on push to a feature branch, headless compile `Development Editor` via `Engine\Build\BatchFiles\RunUAT.bat BuildEditor -project=OutBreak.uproject -platform=Win64`.
-3. On tag push: cook & package for both PC and VR configurations, upload `.zip` artifacts to the Release.
+3. On tag push: cook & package for Android (Quest 3), upload the `.apk` artifact to the Release. Workflow command: `RunUAT.bat BuildCookRun -project=OutBreak.uproject -platform=Android -clientconfig=Shipping -cook -build -stage -package -pak -compressed -archive`.
 
 The CI itself is a portfolio artifact — a sensible, minimal pipeline reads as more senior than an over-engineered one.

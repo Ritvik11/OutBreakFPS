@@ -40,7 +40,7 @@ I've shipped real XR work in Unity (Quest, Vision Pro, WebXR). UE's OpenXR plugi
 - Comfort discipline (no forced camera rotation, decoupled HMD/capsule, snap turn default) is engine-agnostic — these are human-comfort rules, not Unity rules.
 - Performance budgets are the same shape. VR is GPU-bound first on both engines; the optimizations look similar (instanced stereo, fixed foveation where supported, aggressive culling on swarms).
 
-The reason OutBreakFPS is dual-platform isn't novelty — it's that maintaining one codebase across PC and VR is the same engineering muscle as maintaining one codebase across console + PC. I want to demonstrate that muscle.
+The reason OutBreak targets Quest 3 standalone first isn't novelty — it's that working inside the tighter perf budget is the same engineering muscle that AAA studios exercise when targeting console hardware: shipping inside hard constraints rather than burning headroom. The discipline transfers cleanly.
 
 ---
 
@@ -63,5 +63,5 @@ The paragraph I want a hiring manager to read.
 - **I treat GC and pointer lifecycles seriously.** A decade of Unity-style `null` checks on cross-scene references made me paranoid about `WeakObjectPtr` vs raw `UObject*` in the right places.
 - **I refuse to put gameplay logic on Tick.** Unity taught me the cost; UE rewards the discipline even more because Tick is more expensive per actor.
 - **I structure data first, behavior second.** Years of ScriptableObject-driven design translates directly to `UPrimaryDataAsset`-driven UE projects, which is the AAA-standard approach.
-- **I've shipped XR.** Comfort, perf, and dual-platform architecture aren't theoretical for me — they're the discipline of my last several years.
+- **I've shipped XR.** Comfort, on-device perf, and shipping inside tight standalone-VR constraints aren't theoretical for me — they're the discipline of my last several years.
 - **I know where the bodies are buried in component composition.** The Unity/UE component models rhyme; so do their failure modes. I've seen them in production and don't have to learn them again.
