@@ -1,0 +1,18 @@
+{
+	"source": "UE",
+	"applications": [
+		{
+			"app_key": "application.generated.ue.vr-weapons-kit---tactical-assault-15973114.ue4editor.exe",
+			"launch_type": "url",
+			"url": "steam://launch/",
+			"action_manifest_path": "C:/Users/Adam/OneDrive/UE4 Marketplace/VRweapons/Marketplace/4_26/VR_WeaponsKit/Config/SteamVRBindings/steamvr_manifest.json",
+			"strings":
+			{
+				"en_us":
+				{
+					"name": "VR Weapons Kit - Tactical Assault-15973114 [UE Editor]"
+				}
+			}
+		}
+	]
+}
