@@ -10,7 +10,7 @@ The project targets **Meta Quest 3 standalone** as its only build platform for t
 
 | Metric | Target | Rationale |
 |---|---|---|
-| Frame time | < 11.1 ms (90 Hz) | Below that, Quest's Asynchronous Spacewarp reprojection kicks in; players notice |
+| Frame time | < 13.9 ms (72 Hz) | Quest 3 supports 72 / 90 / 120 Hz; 72 Hz selected deliberately to bank ~25% additional frame budget (2.8 ms over the 90 Hz envelope) for dense AI swarms and heavier graphics in upcoming scenes. Below 72 Hz, Quest's Asynchronous Spacewarp reprojection kicks in; players notice. |
 | GPU time | < 8 ms | Stereo rendering effectively doubles cost; remaining headroom absorbs spikes |
 | CPU game thread | < 4 ms | Listen-server host runs game logic + AI for all 3 co-op players |
 | Draw calls (visible) | < 200 | Forward-rendering mobile budget; HLOD + cull distance volumes enforce |
@@ -19,7 +19,7 @@ The project targets **Meta Quest 3 standalone** as its only build platform for t
 | Motion-to-photon | < 20 ms | Comfort threshold for most users |
 | APK size | < 1 GB | Keeps sideload time short and disk footprint reasonable |
 
-VR perf is non-negotiable. Dropped frames cause nausea, not just complaints. The slice is designed to hold 90 FPS under worst-case wave conditions (1 elite + ~18 minors + 3 players visible) — not just on the splash screen.
+VR perf is non-negotiable. Dropped frames cause nausea, not just complaints. The slice is designed to hold **72 FPS** under worst-case wave conditions (1 elite + ~18 minors + 3 players visible) — not just on the splash screen. The 72 Hz target (rather than 90) is an intentional trade: the additional ~2.8 ms per frame is invested in AI density, animation richness, and scene complexity, rather than spent chasing a higher refresh rate that the headset will then reproject anyway under load.
 
 ---
 

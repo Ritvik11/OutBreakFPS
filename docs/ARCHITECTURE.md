@@ -10,7 +10,7 @@ This document explains *why* the slice is structured the way it is. The README i
 
 ## Goals & constraints
 
-- **Quest 3 standalone first.** Mobile renderer, forward shading, baked lighting, ~150 visible draw call budget, 11 ms frame time, 90 FPS comfort threshold. Every system is designed inside that budget on-device, not extrapolated from PCVR.
+- **Quest 3 standalone first.** Mobile renderer, forward shading, baked lighting, ~150 visible draw call budget, 13.9 ms frame time, 72 FPS sustained target (Quest 3 supports 72/90/120 Hz — 72 chosen to bank ~25% additional budget for dense AI and heavier graphics). Every system is designed inside that budget on-device, not extrapolated from PCVR.
 - **Reviewable in 10 minutes.** A reviewer should be able to open one folder, read one header, and understand a system end-to-end.
 - **Idiomatic Unreal.** GAS, Enhanced Input, Common UI, Data Assets, Gameplay Tags, OpenXR. Avoid bespoke frameworks that obscure engineering judgment.
 - **C++ where it pays, Blueprint where it shines.** C++ for hot paths, replication-sensitive logic, and authoritative state. Blueprint for designer-tunable parameters, prototyping, and one-shot level scripting.
@@ -54,7 +54,7 @@ Source/
 
 ## Quest 3 standalone architecture
 
-The slice runs on Quest 3 standalone (Adreno 740, ~3.5 TFLOPS effective, 90 FPS target, 8 GB shared RAM). Every system below is sized to that constraint.
+The slice runs on Quest 3 standalone (Adreno 740, ~3.5 TFLOPS effective, 72 FPS sustained target, 8 GB shared RAM). Every system below is sized to that constraint.
 
 The core principle: **systems are perf-aware at design time, not retrofitted.** That means baked lighting from day one, forward shading from day one, instanced stereo + mobile multi-view from day one, and aggressive HLOD on every static asset. Adding these as an afterthought once the project is dynamic-lighting-shaped is much harder than starting Quest-first and adding PC fidelity later.
 

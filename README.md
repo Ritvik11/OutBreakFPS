@@ -20,12 +20,12 @@
 | **Languages** | Blueprint (current foundation), C++ (gameplay-critical systems — in progress) |
 | **XR features** | Controllers + hand tracking + eye tracking (foveation-ready), all via OpenXR |
 | **Multiplayer** | 3-player co-op |
-| **Performance target** | 90 FPS native, on-device |
+| **Performance target** | 72 FPS native (13.9 ms budget), on-device — headroom held for dense AI + heavier graphics in upcoming scenes |
 | **Scope** | Solo project, in progress |
 | **Source control** | Git + Git LFS, Conventional Commits, structured branching |
 | **What I owned** | 100% — design, programming, integration, lighting, audio cues, build pipeline |
 
-> **Status:** the repo is bootstrapped on the UE 5.3 VR Template (Blueprint) with `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled — each plugin explicitly scoped to support `Win64`, `Linux`, and `Android` so Quest 3 standalone is a first-class target. C++ gameplay systems described below are being layered onto this foundation. Tagged milestones (`v0.0.1-scaffold` → `v0.0.2-project` → `v0.1.0-ue53-migration` → …) track the build-up so the project's evolution is visible in git history.
+> **Status:** Project base now built on a VR FPS kit foundation (UE 5.3) — soldier character (IK Mannequin) integrated with `AdvancedLocomotionV4` driving grip, walk, and crouch animations via blend spaces; smooth VR locomotion across the Factory Exterior map with full-body animation visible in VR view. `OpenXR`, `OpenXRHandTracking`, and `OpenXREyeTracker` plugins enabled across `Win64`, `Linux`, and `Android` so Quest 3 standalone remains a first-class target. C++ gameplay systems (GAS, encounter director, damage pipeline) being layered onto this foundation. Tagged milestones (`v0.0.1-scaffold` → `v0.0.2-project` → `v0.1.0-ue53-migration` → …) track the build-up so the project's evolution is visible in git history.
 
 > **Why Quest-only:** Starting with the tighter platform forces engineering discipline (mobile renderer, ~150 draw call budget, 11 ms frame time, baked lighting only). A flatscreen PC build is a planned follow-up milestone once the Quest slice is locked — adding PC last *inherits* the discipline of mobile constraints rather than fighting against them.
 
@@ -130,14 +130,14 @@ Targets stated up front and measured on-device. Methodology lives in [`docs/PERF
 
 | Metric | Target | Measured |
 |---|---|---|
-| Frame time | < 11.1 ms (90 Hz) | [fill in] |
+| Frame time | < 13.9 ms (72 Hz) | [fill in] |
 | GPU time | < 8 ms | [fill in] |
 | CPU game thread | < 4 ms | [fill in] |
 | Reprojection rate | < 5% | [fill in] |
 | Draw calls (visible) | < 200 | [fill in] |
 | APK size | < 1 GB | [fill in] |
 
-VR perf is non-negotiable. Dropped frames cause nausea, not just complaints. Every system is designed to fit the 11 ms / 8 ms budget on-device, including network replication and AI tick costs across all 3 co-op players.
+VR perf is non-negotiable. Dropped frames cause nausea, not just complaints. The slice targets **72 Hz** (13.9 ms frame budget) rather than 90 Hz — Quest 3 supports 72/90/120 Hz; 72 was selected deliberately to bank ~25% additional headroom for the dense AI swarms and heavier graphics planned for the next scenes, rather than burn that budget chasing 90 Hz everywhere. Every system, including network replication and AI tick costs across all 3 co-op players, is designed to fit inside that envelope on-device.
 
 ---
 

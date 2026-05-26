@@ -126,10 +126,10 @@ Before every push to `main`:
 
 1. `Development Editor` compiles clean — no new warnings.
 2. Editor opens without errors (`Saved/Logs/OutBreak.log`).
-3. **VR Preview** — Encounter01 plays to completion at 90 FPS via Quest Link, no reprojection spikes during waves.
-4. **On-device APK** (at minimum once per tagged release) — Encounter01 plays to completion at 90 FPS on Quest 3 standalone, captured via `adb logcat` and `stat unit`.
+3. **VR Preview** — Encounter01 plays to completion at 72 FPS via Quest Link, no reprojection spikes during waves.
+4. **On-device APK** (at minimum once per tagged release) — Encounter01 plays to completion at 72 FPS on Quest 3 standalone, captured via `adb logcat` and `stat unit`.
 5. `Engine → Test Automation` runs `OutBreakTests` to green.
-6. `stat unit` still hits targets (frame time < 11.1 ms, GPU < 8 ms, reprojection < 5%).
+6. `stat unit` still hits targets (frame time < 13.9 ms, GPU < 8 ms, reprojection < 5%).
 7. `git status` — no stray `Saved/`, `Intermediate/`, `.vs/`, `.idea/`. `.gitignore` should catch these; double-check.
 8. Commit message follows the convention above.
 
